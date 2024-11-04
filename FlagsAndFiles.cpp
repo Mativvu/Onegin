@@ -6,100 +6,151 @@
 #include "Color.h"
 #include "Debug.h"
 
+//TODO: Add FILE structures
 //TODO: Add file flags
 //TODO: add commands
 
-static Command Commands[] = {
-    {ModeHelp,   "--help",  "-h", "you already know, don`t you?)\n"},
-    {ModeInput,  "--in",    "-i", "type \"filename\" after it to input from filename\n"},
-    {ModeOutput, "--out",   "-o", "type \"filename\" after it to output to filename\n"}
+static Command Commands[] =
+{
+    {ModeHelp,   printCommands,     "--help",  "-h", "you already know, don`t you?)\n"},
+    {ModeFile,   setDefaultStreams, "--file",  "-f", "default working mode, extracts data from \"input.txt\""
+                                                     "and prints in \"output.txt\" \n"},
+    {ModeInput,  setInputStream,    "--in",    "-i", "type \"filename\" after it to input from \"filename\" \n"},
+    {ModeOutput, setOutputStream,   "--out",   "-o", "type \"filename\" after it to output in \"filename\" \n"},
 };
 
 //TODO: change insides
 
-Status processMainArgs(const int argc, const char* argv[], int* mode_field,
-                       const char** stream_in_name, const char** stream_out_name)
+Status processMainArgs(const int argc, const char** argv, int* mode_field, flagableData* mainData)
 {
     myAssert(mode_field != nullptr);
-    myAssert(stream_in_name != nullptr);
-    myAssert(stream_out_name != nullptr);
+    myAssert(mainData != nullptr);
 
-    for (int i = 1; i < argc; i++)
+    if (argc == 1)
+    {
+        colorPrintf(MAGENTA, "Type --help to see commands\n");
+    }
+    for (int arg_index = 1; arg_index < argc; arg_index++)
     {
         bool found = false;
-        for (size_t j = 0; j < (sizeof(Commands)/sizeof(Commands[0])); j++)
+        for (size_t command_index = 0; command_index < (sizeof(Commands)/sizeof(Commands[0])); command_index++)
         {
-            if (isCommand(argv[i], &Commands[j]))
+            if (isCommand(argv[arg_index], &Commands[command_index]))
             {
-                if (isModeSet(*mode_field, Commands[j].mode))
+                if (isModeSet(*mode_field, Commands[command_index].mode))
                 {
                     return DUPLICATION_ERR;
                 }
-                *mode_field |= Commands[j].mode;
+                *mode_field |= Commands[command_index].mode;
 
-                /* Simple solution to process commands "--in" and "--out".
-                if (isCommand(argv[i], &Commands[FLAG_IN_INDEX])
-                    && i+1 < argc)
-                {
-                    *stream_in_name = argv[++i];
-                }
-                else if (isCommand(argv[i], &Commands[FLAG_OUT_INDEX])
-                         && i+1 < argc)
-                {
-                    *stream_out_name = argv[++i];
-                }
-                */
+                Commands[command_index].function(argc, argv, &arg_index, &mainData);
                 found = true;
                 break;
             }
         }
         if (!found)
         {
-            colorPrintf(MAGENTA, "Found unknown argument: %s\n", argv[i]);
+            colorPrintf(MAGENTA, "Found unknown argument: %s\n", argv[arg_index]);
             return UNKNOWN_ARG;
         }
     }
     return OK;
 }
 
-//TODO: change function
-Status fileManager(int mode_field, FILE** stream_in_ptr, FILE** stream_out_ptr,
-                   const char* stream_in_name, const char* stream_out_name)
+Status setInputStream(const int argc, const char** argv, int* arg_index, flagableData** mainData)
 {
-    myAssert(stream_in_ptr != nullptr);
-    myAssert(stream_out_ptr != nullptr);
+    myAssert(arg_index != nullptr);
+    myAssert(mainData != nullptr);
+    myAssert(*mainData != nullptr);
 
-    /*
-    if (   isAllModesSet(mode_field, (ModeFile | ModeOutput))
-        || isAllModesSet(mode_field, (ModeFile | ModeInput)))
+    FILE** stream_in = &(*mainData)->input_stream.stream;
+
+    if (*stream_in != nullptr)
     {
-        return COMMAND_ERR;
+        return STREAM_ERR;
     }
-    if (isModeSet(mode_field, ModeFile))
+
+    if (*arg_index + 1 < argc)
     {
-        *stream_in_ptr  = fopen("input.txt",  "r");
-        *stream_out_ptr = fopen("output.txt", "w");
-        if (*stream_in_ptr == nullptr || *stream_out_ptr == nullptr)
-        {
-            return FILE_ERR;
-        }
+        (*arg_index)++;
+        (*mainData)->input_stream.file_name = allocStringLiteral(argv[*arg_index]);
     }
-    */
-    if (stream_in_name != nullptr)
+    else
     {
-        *stream_in_ptr = fopen(stream_in_name, "r");
-        if (*stream_in_ptr == nullptr)
-        {
-            return FILE_ERR;
-        }
+        return FILE_ERR;
     }
-    if (stream_out_name != nullptr)
+    *stream_in = fopen((*mainData)->input_stream.file_name, "r");
+    if (*stream_in == nullptr)
     {
-        *stream_out_ptr = fopen(stream_out_name, "w");
-        if (*stream_out_ptr == nullptr)
-        {
-            return FILE_ERR;
-        }
+        return FILE_ERR;
+    }
+    return OK;
+}
+
+Status setOutputStream(const int argc, const char** argv, int* arg_index, flagableData** mainData)
+{
+    myAssert(arg_index != nullptr);
+    myAssert(mainData  != nullptr);
+    myAssert(*mainData != nullptr);
+
+    FILE** stream_out = &(*mainData)->output_stream.stream;
+
+    if (*stream_out != nullptr)
+    {
+        return STREAM_ERR;
+    }
+
+    if (*arg_index + 1 < argc)
+    {
+        (*arg_index)++;
+        (*mainData)->output_stream.file_name = allocStringLiteral(argv[*arg_index]);
+    }
+    else
+    {
+        return FILE_ERR;
+    }
+    *stream_out = fopen((*mainData)->output_stream.file_name, "w");
+    if (*stream_out == nullptr)
+    {
+        return FILE_ERR;
+    }
+    return OK;
+}
+
+Status setDefaultStreams(const int argc, const char** argv, int* arg_index, flagableData** mainData)
+{
+    myAssert(mainData  != nullptr);
+    myAssert(*mainData != nullptr);
+
+    FILE** stream_in  = &(*mainData)->input_stream.stream;
+    FILE** stream_out = &(*mainData)->output_stream.stream;
+
+    if (*stream_in != nullptr || *stream_out != nullptr)
+    {
+        return STREAM_ERR;
+    }
+
+    (*mainData)->input_stream.file_name  = allocStringLiteral("output.txt");
+    (*mainData)->output_stream.file_name = allocStringLiteral("input.txt");
+
+    *stream_in  = fopen("input.txt", "r");
+    *stream_out = fopen("output.txt", "w");
+    if (*stream_in == nullptr || *stream_out == nullptr)
+    {
+        return FILE_ERR;
+    }
+    return OK;
+}
+
+Status printCommands(const int argc, const char** argv, int* arg_index, flagableData** mainData)
+{
+    printf("\n");
+    for (size_t i = 0; i < (sizeof(Commands)/sizeof(Commands[0])); i++)
+    {
+        colorPrintf(CYAN, "%s ", Commands[i].name);
+        colorPrintf(MAGENTA, "or ");
+        colorPrintf(CYAN, "%s ", Commands[i].short_name);
+        colorPrintf(MAGENTA, "%s\n", Commands[i].describtion);
     }
     return OK;
 }
@@ -125,29 +176,32 @@ bool isCommand(const char* str, const Command* command)
             strcmp(str, command->short_name) == 0);
 }
 
-void printCommands()
+char* allocStringLiteral(const char string[])
 {
-    printf("\n");
-    for (size_t i = 0; i < (sizeof(Commands)/sizeof(Commands[0])); i++)
+    char* dynamic_string = nullptr;
+
+    size_t length = strlen(string) + 1;
+
+    dynamic_string = (char*)calloc(length, sizeof(char));
+    if (dynamic_string == nullptr)
     {
-        colorPrintf(CYAN, "%s ", Commands[i].name);
-        colorPrintf(MAGENTA, "or ");
-        colorPrintf(CYAN, "%s ", Commands[i].short_name);
-        colorPrintf(MAGENTA, "%s\n", Commands[i].describtion);
+        return nullptr;
     }
+
+    dynamic_string[--length] = '\0';
+    while (--length >= 0)
+    {
+        dynamic_string[length] = string[length];
+        if (length == 0)
+        {
+            break;
+        }
+    }
+    return dynamic_string;
 }
 
-Status performPrintingCommands(const int mode_field)
+void freeAndClose(myStream* stream)
 {
-    if (isModeSet(mode_field, ModeHelp))
-    {
-        printCommands();
-        return HELP_FLAG;
-    }
-    else
-    {
-        colorPrintf(MAGENTA, "Type --help to see commands\n");
-    }
-    return OK;
+    free(stream->file_name);
+    fclose(stream->stream);
 }
-

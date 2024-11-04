@@ -16,26 +16,44 @@ enum Mode {
     ModeRT     = 1U << 6  /**< Prints "РТ" sign and shouts "РТ" from speakers. */
 };
 
-struct Command {
-    Mode mode;
-    const char* name;
-    const char* short_name;
-    const char* describtion;
+typedef struct MyStream
+{
+    char* file_name;
+    FILE* stream;
+} myStream;
+
+typedef struct FlagableData
+{
+    myStream input_stream;
+    myStream output_stream;
+} flagableData;
+
+typedef Status (*Command_function)(const int argc, const char** argv, int* arg_index,
+                                   flagableData** mainData);
+
+struct Command
+{
+    const Mode       mode;
+    Command_function function;
+    const char*      name;
+    const char*      short_name;
+    const char*      describtion;
 };
 
-Status processMainArgs(const int argc, const char* argv[], int* mode_field,
-                       const char** stream_in_name, const char** stream_out_name);
+Status processMainArgs(const int argc, const char** argv, int* mode_field, flagableData* mainData);
 
-Status fileManager(int mode_field, FILE** stream_in_p, FILE** stream_out_p,
-                   const char* stream_in_name, const char* stream_out_name);
-
-Status performPrintingCommands(const int mode_field);
-void   printCommands();
+Status setDefaultStreams(const int argc, const char** argv, int* arg_index, flagableData** mainData);
+Status setOutputStream  (const int argc, const char** argv, int* arg_index, flagableData** mainData);
+Status setInputStream   (const int argc, const char** argv, int* arg_index, flagableData** mainData);
+Status printCommands    (const int argc, const char** argv, int* arg_index, flagableData** mainData);
 
 bool isAllModesSet(const int mode_field, const int modes);
 bool isAnyModesSet(const int mode_field, const int modes);
 bool isModeSet(const int mode_field, const int mode);
 bool isCommand(const char* str, const Command* command);
 
+char* allocStringLiteral(const char string[]);
+
+void freeAndClose(myStream* stream);
 
 #endif //FLAGSANDFILES_H

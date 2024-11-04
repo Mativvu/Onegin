@@ -10,22 +10,17 @@ if (isError(status))        \
 
 //TODO: delete irrelevant flags
 
-enum Status {
-    OK              = 0,  /**< Function finished without errors. */
-    INPUT_ERR       = 1,  /**< The input was wrong. */
-    COEFF_ERR       = 2,  /**< Coefficient was invalid number. */
-    SOLVER_ERR      = 3,  /**< Error in SolveQuadEquation function. */
-    OUTPUT_ERR      = 4,  /**< Trying to print invalid solutions. */
-    END_TEST        = 5,  /**< Unit testing finished. */
-    MAXLEN_REACHED  = 6,  /**< Too many characters in one line. */
-    UNKNOWN_ARG     = 7,  /**< Found unknown argument. */
-    COMMAND_ERR     = 8,  /**< Forbidden combination of flags was typed. */
-    FILE_ERR        = 9,  /**< Cannot open/find file. */
-    DUPLICATION_ERR = 10, /**< Identical flags were typed. */
-    HELP_FLAG       = 11, /**< "--help" command was typed, stops program. */
-    ALLOC_ERR       = 12,
-    SEEK_ERR        = 13,
-    READ_ERR        = 14
+enum Status
+{
+    OK              = 0, /*< Function finished without errors. */
+    HELP_FLAG       = 1, /*< "--help" command was typed, stops program. */
+    UNKNOWN_ARG     = 2, /*< Found unknown argument. */
+    FILE_ERR        = 3, /*< Cannot open/find file. */
+    DUPLICATION_ERR = 4, /*< Identical flags were typed. */
+    ALLOC_ERR       = 5, /*< Failed allocating memory. */
+    SEEK_ERR        = 6, /*< Cannot find end of file. */
+    READ_ERR        = 7, /*< Cannot read all data from file. */
+    STREAM_ERR      = 8  /*< Repeated opening of the same stream. */
 };
 
 bool isError(Status status);

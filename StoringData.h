@@ -2,20 +2,36 @@
 #define STORINGDATA_H
 
 #include <stdio.h>
-#include <stdlib.h>
 
 #include "Errors.h"
 
 typedef struct SmartString
 {
-    char* string;
-    int length;
-} smartString;
+    char*  string;
+    size_t length;
+} SmartString;
 
-Status readDataFromFile(const FILE* stream_in, char** array, size_t* size);
-Status linkTheFuckingPointers(const FILE* stream_in, char** data_array, const size_t data_arr_size,
-                                              smartString** string_array,    size_t* string_arr_size);
+typedef struct SmartArray
+{
+    SmartString* data;
+    size_t       size;
+} SmartArray;
 
-Status printStringArray(const FILE* stream_out, const smartString* array, const size_t size);
+typedef struct CharArray
+{
+    char*  data;
+    size_t size;
+} CharArray;
+
+Status readDataFromFile(FILE* stream_in, CharArray* file_text);
+
+Status linkStringPointers(CharArray* file_text, SmartArray* string_array);
+
+void stripString(char** string, size_t* length);
+
+Status printStringArray(FILE* stream_out, const SmartArray array);
+
+void freeSmartArray(SmartArray* array);
+void freeCharArray (CharArray*  array);
 
 #endif //STORINGDATA_H

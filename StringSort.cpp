@@ -13,9 +13,56 @@
 
 //static const char skip_symbols[] = {' ', '!', '?', '.', ',', '"', '\'', '-', '`'};
 
-Status heapSort(SmartArray array, Compare_func comparator)
+Status sortArray(Sorting_func sorter, SmartArray* array, Compare_func comparator)
 {
-    size_t data_size = array.size;
+    myAssert(array != nullptr);
+    myAssert(comparator != nullptr);
+
+    if (sorter == nullptr)
+    {
+        return ALGORITHM_ERR;
+    }
+    return sorter(array, comparator);
+}
+
+Status quickSort(SmartArray* array, Compare_func comparator)
+{
+    sortSubArrays(array, 0, array->size - 1, comparator);
+    return OK;
+}
+
+void sortSubArrays(SmartArray* array, int left_index, int right_index, Compare_func comparator)
+{
+    if (left_index < right_index)
+    {
+        int pivot_index = splitArray(array, left_index, right_index, comparator);
+
+        sortSubArrays(array, left_index, pivot_index - 1, comparator);
+        sortSubArrays(array, pivot_index + 1, right_index, comparator);
+    }
+    return;
+}
+
+int splitArray(SmartArray* array, int left_index, int right_index, Compare_func comparator)
+{
+    SmartString* pivot_element_ptr = &array->data[right_index];
+    int pivot_index = left_index - 1;
+
+    for (int index = left_index; index < right_index; ++index)
+    {
+        if (comparator(&array->data[index], pivot_element_ptr) < 0)
+        {
+            pivot_index++;
+            swapStrings(&array->data[index], &array->data[pivot_index]);
+        }
+    }
+    swapStrings(&array->data[pivot_index + 1], pivot_element_ptr);
+    return pivot_index + 1;
+}
+
+Status heapSort(SmartArray* array, Compare_func comparator)
+{
+    size_t data_size = array->size;
     for (size_t index = (data_size - 1) / 2; index >= 0; --index)
     {
         heapPushDown(array, data_size, index, comparator);
@@ -27,7 +74,7 @@ Status heapSort(SmartArray array, Compare_func comparator)
     }
     for (size_t index = data_size - 1; index > 0; --index)
     {
-        swapStrings(&array.data[0], &array.data[index]);
+        swapStrings(&array->data[0], &array->data[index]);
         heapPushDown(array, index, 0, comparator);
         //simple solution to "size_t >= 0"
         if (index == 0)
@@ -38,23 +85,23 @@ Status heapSort(SmartArray array, Compare_func comparator)
     return OK;
 }
 
-void heapPushDown(SmartArray array, const size_t size, size_t index, Compare_func comparator)
+void heapPushDown(SmartArray* array, const size_t size, size_t index, Compare_func comparator)
 {
     size_t minimal_index = index;
     size_t left_index  = leftNode(index);
     size_t right_index = rightNode(index);
 
-    if (left_index < size && comparator(&array.data[left_index], &array.data[minimal_index]) > 0)
+    if (left_index < size && comparator(&array->data[left_index], &array->data[minimal_index]) > 0)
     {
         minimal_index = left_index;
     }
-    if (right_index < size && comparator(&array.data[right_index], &array.data[minimal_index]) > 0)
+    if (right_index < size && comparator(&array->data[right_index], &array->data[minimal_index]) > 0)
     {
         minimal_index = right_index;
     }
     if (index != minimal_index)
     {
-        swapStrings(&array.data[index], &array.data[minimal_index]);
+        swapStrings(&array->data[index], &array->data[minimal_index]);
         heapPushDown(array, size, minimal_index, comparator);
     }
     return;

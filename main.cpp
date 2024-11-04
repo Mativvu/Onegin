@@ -1,60 +1,65 @@
 #include <stdio.h>
 
 #include "Errors.h"
-#include "FlagsAndFiles.h"
+#include "Commands.h"
+#include "FlagParser.h"
 #include "StringSort.h"
 #include "StoringData.h"
 #include "Color.h"
 #include "Debug.h"
 
+//TODO: rename structures
+//TODO: rename ParsedData
+//TODO: rename error names, make`em longer
 //TODO: add commands
 //TODO: print at the end of the input file?
 
 int main(const int argc, const char** argv)
 {
-    int mode_field = 0;
+    int modes_bitset = 0;
+    Status status  = OK;
 
-    FlagableData mainData = {{nullptr, nullptr}, {nullptr, nullptr}};
-    Status status = processMainArgs(argc, argv, &mode_field, &mainData);
+    FlagParseData ParsedData = {nullptr, {nullptr, nullptr}, {nullptr, nullptr}};
+    status = parseFlags(argc, argv, &modes_bitset, &ParsedData);
     checkStatus(status);
-    debugPrintStr("#1 Initialization completed, files opened successfully \n");
+    debugPrintString("#1 Initialization completed, files opened successfully \n");
 
-    FILE* stream_in =  mainData.input_stream.stream;
-    FILE* stream_out = mainData.output_stream.stream;
+    FILE* stream_in  = ParsedData.input_stream.stream;
+    FILE* stream_out = ParsedData.output_stream.stream;
 
-    CharArray file_text = {nullptr, 0};
-    status = readDataFromFile(stream_in, &file_text);
+    CharArray File_text = {nullptr, 0};
+    status = readDataFromFile(stream_in, &File_text);
     checkStatus(status);
-    debugPrintStr("#2 File reading finished \n");
+    debugPrintString("#2 File reading finished \n");
 
-    colorPrintf(YELLOW, "Data array size is %zu symbols \n", file_text.size);
+    colorPrintf(YELLOW, "Data array size is %zu symbols \n", File_text.size);
 
-    SmartArray string_array = {nullptr, 0};
-    status = linkStringPointers(&file_text, &string_array);
+    SmartArray String_array = {nullptr, 0};
+    status = linkStringPointers(&File_text, &String_array);
     checkStatus(status);
-    debugPrintStr("#3 Pointers linked successfully \n");
+    debugPrintString("#3 Pointers linked successfully \n");
 
-    colorPrintf(YELLOW, "String array size is %zu lines \n", string_array.size);
+    colorPrintf(YELLOW, "String array size is %zu lines \n", String_array.size);
 
-    status = heapSort(string_array, lexicograficStringComparator);
+    status = sortArray(ParsedData.sorter, &String_array, lexicograficStringComparator);
     checkStatus(status);
-    debugPrintStr("#4 Lexicografic sorting finished \n");
+    debugPrintString("#4 Lexicografic sorting finished \n");
 
-    status = printStringArray(stream_out, string_array);
+    status = printStringArray(stream_out, &String_array);
     checkStatus(status);
-    debugPrintStr("#5 Finished printing array \n");
+    debugPrintString("#5 Finished printing array \n");
 
-    status = heapSort(string_array, rhymeStringComparator);
+    status = sortArray(ParsedData.sorter, &String_array, rhymeStringComparator);
     checkStatus(status);
-    debugPrintStr("#6 Rhyme sorting finished \n");
+    debugPrintString("#6 Rhyme sorting finished \n");
 
-    status = printStringArray(stream_out, string_array);
+    status = printStringArray(stream_out, &String_array);
     checkStatus(status);
-    debugPrintStr("#7 Finished printing array \n");
+    debugPrintString("#7 Finished printing array \n");
 
-    freeSmartArray(&string_array);
-    freeCharArray (&file_text);
-    freeAndClose(&mainData.input_stream);
-    freeAndClose(&mainData.output_stream);
-    debugPrintStr("#8 Memory cleared, files closed, all done \n");
+    freeCharArray (&File_text);
+    freeSmartArray(&String_array);
+    freeAndCloseStream(&ParsedData.input_stream);
+    freeAndCloseStream(&ParsedData.output_stream);
+    debugPrintString("#8 Memory cleared, files closed, all done \n");
 }

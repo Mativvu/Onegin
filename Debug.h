@@ -10,7 +10,7 @@
 
 #ifdef DEBUG
 
-#define debugPrintStr(str)         \
+#define debugPrintString(str)         \
     printf(_BLUE "%s" _RESET, str);
 
 #define myAssert(expr)                                      \
@@ -23,7 +23,7 @@
     };
 
 #else
-#define debugPrintStr(str) ;
+#define debugPrintStringing(str) ;
 #define myAssert(expr) ;
 
 #endif //DEBUG

@@ -31,5 +31,7 @@ void describeError(Status status)
                                           "Error, fail to read all data from file. \n");
     printIfMatch(status, STREAM_ERR,      "Err %d: "
                                           "Error, repeated opening of the same file. \n");
+    printIfMatch(status, ALGORITHM_ERR,   "Err %d: "
+                                          "Error, name of the method is unknown or wasn`t inputted. \n");
     colorPrintf(RED, "Error, unknown status. \n");
 }

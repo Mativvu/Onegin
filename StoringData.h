@@ -23,13 +23,13 @@ typedef struct CharArray
     size_t size;
 } CharArray;
 
-Status readDataFromFile(FILE* stream_in, CharArray* file_text);
+Status readDataFromFile(FILE* stream_in, CharArray* File_text);
 
-Status linkStringPointers(CharArray* file_text, SmartArray* string_array);
+Status linkStringPointers(CharArray* File_text, SmartArray* String_array);
 
 void stripString(char** string, size_t* length);
 
-Status printStringArray(FILE* stream_out, const SmartArray array);
+Status printStringArray(FILE* stream_out, const SmartArray* array);
 
 void freeSmartArray(SmartArray* array);
 void freeCharArray (CharArray*  array);

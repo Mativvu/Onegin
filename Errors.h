@@ -1,12 +1,18 @@
 #ifndef ERRORCODES_H
 #define ERRORCODES_H
 
-#define checkStatus(status) \
-if (isError(status))        \
-{                           \
-    describeError(status);  \
-    return status;          \
-};
+#define checkStatus(status)     \
+    if (isError(status))        \
+    {                           \
+        describeError(status);  \
+        return status;          \
+    };
+
+#define returnIfError(status)     \
+    if (isError(status))          \
+    {                             \
+        return status;            \
+    };
 
 //TODO: delete irrelevant flags
 
@@ -20,7 +26,8 @@ enum Status
     ALLOC_ERR       = 5, /*< Failed allocating memory. */
     SEEK_ERR        = 6, /*< Cannot find end of file. */
     READ_ERR        = 7, /*< Cannot read all data from file. */
-    STREAM_ERR      = 8  /*< Repeated opening of the same stream. */
+    STREAM_ERR      = 8, /*< Repeated opening of the same stream. */
+    ALGORITHM_ERR   = 9  /*< Sorting method is unknown or wasn`t inputted. */
 };
 
 bool isError(Status status);

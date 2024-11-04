@@ -3,13 +3,12 @@
 
 #include "Errors.h"
 #include "Commands.h"
-#include "Files.h"
 
-Status processMainArgs(const int argc, const char** argv, int* mode_field, FlagableData* mainData);
+Status parseFlags(const int argc, const char** argv, int* modes_bitset, FlagParseData* ParsedData);
 
-bool isAllModesSet(const int mode_field, const int modes);
-bool isAnyModesSet(const int mode_field, const int modes);
-bool isModeSet    (const int mode_field, const int mode);
+bool isAllModesSet(const int modes_bitset, const int modes_bits);
+bool isAnyModesSet(const int modes_bitset, const int modes_bits);
+bool isModeSet    (const int modes_bitset, const int mode_bit);
 bool isCommand    (const char* str, const Command* command);
 
 #endif //FLAGPARSER_H

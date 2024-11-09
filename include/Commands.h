@@ -23,7 +23,8 @@ enum Mode_bit
     HELP    = 1U << 2,
     INPUT   = 1U << 3,
     OUTPUT  = 1U << 4,
-    SORT    = 1U << 5
+    SORT    = 1U << 5,
+    APPEND  = 3U << 3
 };
 
 typedef struct MyStream
@@ -56,6 +57,7 @@ extern size_t  commands_array_size;
 
 Status setSortingMethod (const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData);
 Status setDefaultStreams(const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData);
+Status setAppendStream  (const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData);
 Status setOutputStream  (const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData);
 Status setInputStream   (const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData);
 Status printCommands    (const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData);

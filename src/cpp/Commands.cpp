@@ -12,8 +12,13 @@ Command commands_array[] =
     {HELP,    printCommands,     "--help",  "-h", "you already know, don`t you?)\n"},
     {DEFAULT, setDefaultStreams, "--file",  "-f", "default working mode, extracts data from \"input.txt\""
                                                   "and prints in \"output.txt\" \n"},
-    {INPUT,   setInputStream,    "--in",    "-i", "type \"filename\" after it to input from \"filename\" \n"},
-    {OUTPUT,  setOutputStream,   "--out",   "-o", "type \"filename\" after it to output in \"filename\" \n"},
+    {INPUT,   setInputStream,    "--in",    "-i", "type \"filename\" after it to input from \"filename\","
+                                                  "file must exist in folder \"files/input\" \n"},
+    {OUTPUT,  setOutputStream,   "--out",   "-o", "type \"filename\" after it to output in \"filename\","
+                                                  "file must exist in folder \"files/output\" \n"},
+    {APPEND,  setAppendStream,   "--app",   "-a", "type \"filename\" after it to input from \"filename\""
+                                                  " and output in the end of it, file must exist in"
+                                                  "folder \"files/input\" \n"},
     {SORT,    setSortingMethod,  "--sort",  "-s", "type \"quick\" to sort strings using QuickSort algorithm"
                                                   " or \"heap\" to use HeapSort \n"}
 };
@@ -110,6 +115,44 @@ Status setOutputStream(const int argc, const char** argv, int* arg_index, FlagPa
     }
     *stream_out = fopen(*file_path, "w");
     if (*stream_out == nullptr)
+    {
+        return FILE_ERR;
+    }
+    return OK;
+}
+
+Status setAppendStream(const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData)
+{
+    myAssert(arg_index != nullptr);
+    myAssert(ParsedData  != nullptr);
+
+    Status status = OK;
+
+    FILE** stream_in =  &ParsedData->input_stream.stream;
+    FILE** stream_out = &ParsedData->output_stream.stream;
+
+    char** file_path   = &ParsedData->input_stream.file_path;
+
+    if (*stream_out != nullptr || *stream_in != nullptr)
+    {
+        return STREAM_ERR;
+    }
+
+    if (*arg_index + 1 < argc)
+    {
+        (*arg_index)++;
+        const char* file_name = argv[*arg_index];
+
+        status = createFilePath(file_path, FILE_INPUT_PATH, file_name);
+        returnIfError(status);
+    }
+    else
+    {
+        return FILE_ERR;
+    }
+    *stream_in  = fopen(*file_path, "a+");
+    *stream_out = fopen(*file_path, "a+");
+    if (*stream_out == nullptr || *stream_in == nullptr)
     {
         return FILE_ERR;
     }

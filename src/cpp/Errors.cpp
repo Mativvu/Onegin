@@ -30,7 +30,7 @@ void describeError(Status status)
     printIfMatch(status, READ_ERR,        "Err %d: "
                                           "Error, fail to read all data from file. \n");
     printIfMatch(status, STREAM_ERR,      "Err %d: "
-                                          "Error, repeated opening of the same file. \n");
+                                          "Error, repeated opening of the same stream. \n");
     printIfMatch(status, ALGORITHM_ERR,   "Err %d: "
                                           "Error, name of the method is unknown or wasn`t inputted. \n");
     printIfMatch(status, NAME_LEN_ERR,    "Err %d: "

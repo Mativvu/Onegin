@@ -10,6 +10,7 @@ Status readDataFromFile(FILE* stream_in, CharArray* File_text)
     myAssert(stream_in != nullptr);
     myAssert(File_text != nullptr);
 
+    fseek(stream_in, 0, SEEK_SET);
     fseek(stream_in, 0, SEEK_END);
     long res = ftell(stream_in);
     if (res < 0)
@@ -26,6 +27,7 @@ Status readDataFromFile(FILE* stream_in, CharArray* File_text)
     }
 
     size_t read = fread(File_text->data, sizeof(char), File_text->size, stream_in);
+    colorPrintf(YELLOW, "Fread: %zu, file size: %zu \n", read, File_text->size);
     if (read != File_text->size)
     {
         return READ_ERR;
@@ -94,6 +96,7 @@ Status printStringArray(FILE* stream_out, const SmartArray* array)
     myAssert(array != nullptr);
     myAssert(array->data != nullptr);
 
+    fprintf(stream_out, "\n");
     for (size_t index = 0; index < array->size; ++index)
     {
         fprintf(stream_out, "%s \n", array->data[index].string);

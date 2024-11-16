@@ -5,8 +5,6 @@
 
 #include "Errors.h"
 
-const size_t ZERO_SIZE = 0;
-
 typedef struct SmartString
 {
     char*  string;
@@ -29,7 +27,7 @@ Status readDataFromFile(FILE* stream_in, CharArray* File_text);
 
 Status linkStringPointers(CharArray* File_text, SmartArray* String_array);
 
-void stripString(char** string, size_t* length);
+void stripLeftString(char** string, size_t* length);
 
 Status printStringArray(FILE* stream_out, const SmartArray* array);
 

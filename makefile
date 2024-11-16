@@ -2,11 +2,11 @@ CXX := gcc
 CXXFLAGS := -fsanitize=address,alignment -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Wc++14-compat -Wmissing-declarations -Wcast-qual -Wchar-subscripts -Wconversion -Wctor-dtor-privacy -Wempty-body -Wfloat-equal -Wformat-nonliteral -Wformat-security -Wformat=2 -Winline -Wnon-virtual-dtor -Woverloaded-virtual -Wpacked -Wpointer-arith -Winit-self -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-overflow=2 -Wsuggest-override -Wswitch-default -Wswitch-enum -Wundef -Wunreachable-code -Wunused -Wvariadic-macros -Wno-missing-field-initializers -Wno-narrowing -Wno-old-style-cast -Wno-varargs -Wstack-protector -fcheck-new -fsized-deallocation -fstack-protector -fstrict-overflow -fno-omit-frame-pointer -fPIE -Werror=vla
 
 BIN        := bin
-SRC        := src/cpp
-OBJDIR     := src/obj
-INCLUDE    := include
+SRC        := src
 EXE        := main
-DEPDIR     := deps
+INCLUDE    := include
+OBJDIR     := build/obj
+DEPDIR     := build/depends
 
 CPP := $(wildcard $(SRC)/*.cpp)
 OBJ := $(CPP:$(SRC)/%.cpp=$(OBJDIR)/%.o)
@@ -30,7 +30,7 @@ $(OBJDIR)/%.o: $(SRC)/%.cpp
 -include $(DEP)
 
 $(DEPDIR)/%.d: $(SRC)/%.cpp
-	@$(CXX) $(CXXFLAGS) -I$(INCLUDE) $(CPPFILES) -MM -MT $(patsubst %.d,%.o,$(OBJDIR)/$*.o) -MF $@ $<
+	@$(CXX) $(CXXFLAGS) -I$(INCLUDE) -MM -MT $(patsubst %.d,%.o,$(OBJDIR)/$*.o) -MF $@ $<
 
 clean:
 	@echo "Clearing..."

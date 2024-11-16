@@ -8,13 +8,13 @@
         return status;          \
     };
 
-#define returnIfError(status)     \
-    if (isError(status))          \
-    {                             \
-        return status;            \
+#define returnIfError(status)   \
+    if (isError(status))        \
+    {                           \
+        return status;          \
     };
 
-enum  Status
+enum Status
 {
     OK              = 0,
     HELP_FLAG       = 1,

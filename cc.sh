@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 echo "Putting all together..."
 make
 echo "WOW, this shit compiled"

@@ -5,10 +5,12 @@
 #include "Color.h"
 #include "Debug.h"
 
-Status parseFlags(const int argc, const char** argv, int* modes_bitset, FlagParseData* ParsedData)
+Status parseFlags(const int argc, const char** argv, int* modes_bitset,
+                  FlagParseData* ParsedData, Command* commands_array, size_t commands_array_size)
 {
-    myAssert(modes_bitset != nullptr);
-    myAssert(ParsedData != nullptr);
+    myAssert(modes_bitset   != nullptr);
+    myAssert(ParsedData     != nullptr);
+    myAssert(commands_array != nullptr);
 
     Status status = OK;
     if (argc == 1)

@@ -8,13 +8,10 @@
 
 const size_t MAX_NAME_LEN = 16;
 
-const char* const FILE_INPUT_PATH  = "files/input/";
-const char* const FILE_OUTPUT_PATH = "files/output/";
+const char* const DEFAULT_INPUT_FILE_NAME  = "files/input/input.txt";
+const char* const DEFAULT_OUTPUT_FILE_NAME = "files/output/output.txt";
 
-const char* const DEFAULT_INPUT_FILE_NAME  = "input.txt";
-const char* const DEFAULT_OUTPUT_FILE_NAME = "output.txt";
-
-#define unused(param) (void)(param);
+#define unused(param) do { (void)(param); } while (0)
 
 enum Mode_bit
 {
@@ -27,17 +24,17 @@ enum Mode_bit
     APPEND  = 3U << 3
 };
 
-typedef struct MyStream
+typedef struct Sorter
 {
-    char*  file_path;
-    FILE*  stream;
-} MyStream;
+    Sorting_func sorter;
+    const char*  name;
+} Sorter;
 
 typedef struct FlagParseData
 {
     Sorting_func  sorter;
-    MyStream      input_stream;
-    MyStream      output_stream;
+    FILE*         input_stream;
+    FILE*         output_stream;
 } FlagParseData;
 
 typedef Status (*Command_function)(const int argc, const char** argv, int* arg_index,
@@ -61,9 +58,5 @@ Status setAppendStream  (const int argc, const char** argv, int* arg_index, Flag
 Status setOutputStream  (const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData);
 Status setInputStream   (const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData);
 Status printCommands    (const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData);
-
-Status createFilePath   (char** file_path, const char* const path, const char* file_name);
-
-void freeAndCloseStream(MyStream* stream);
 
 #endif //COMMANDS_H

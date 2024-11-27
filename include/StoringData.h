@@ -5,33 +5,27 @@
 
 #include "Errors.h"
 
-typedef struct SmartString
+typedef struct MyString
 {
     char*  string;
     size_t length;
-} SmartString;
+} MyString;
 
-typedef struct SmartArray
+typedef struct MyArray
 {
-    SmartString* data;
-    size_t       size;
-} SmartArray;
+    MyString* data;
+    size_t    size;
+} MyArray;
 
-typedef struct CharArray
-{
-    char*  data;
-    size_t size;
-} CharArray;
+Status readDataFromFile(FILE* stream_in, MyString* File_text);
+Status getFileSize     (FILE* stream_in, size_t*    file_size);
 
-Status readDataFromFile(FILE* stream_in, CharArray* File_text);
+Status linkStringPointers(MyString* File_text, MyArray* String_array);
+Status printStringArray(FILE* stream_out, const MyArray* array);
 
-Status linkStringPointers(CharArray* File_text, SmartArray* String_array);
+void myStringReplace(MyString* string, char old_symbol, char new_symbol);
 
-void stripLeftString(char** string, size_t* length);
-
-Status printStringArray(FILE* stream_out, const SmartArray* array);
-
-void freeSmartArray(SmartArray* array);
-void freeCharArray (CharArray*  array);
+void freeMyArray(MyArray* array);
+void freeMyString (MyString*  array);
 
 #endif //STORINGDATA_H

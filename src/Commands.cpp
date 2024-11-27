@@ -24,27 +24,32 @@ Command commands_array[] =
 };
 size_t commands_array_size = sizeof(commands_array)/sizeof(commands_array[0]);
 
+Sorter sorters_array[] =
+{
+    {quickSort, "quick"},
+    {heapSort,  "heap"}
+};
+
 Status setSortingMethod (const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData)
 {
     myAssert(arg_index != nullptr);
     myAssert(ParsedData != nullptr);
 
-    char algorithm_name[MAX_NAME_LEN] = {0};
+    char algorithm_name[MAX_NAME_LEN] = "";
     if (*arg_index + 1 < argc)
     {
         (*arg_index)++;
         strncpy(algorithm_name, argv[*arg_index], MAX_NAME_LEN);
     }
-    //FIXME
-    if (strcmp(algorithm_name, "quick") == 0)
+
+    for (size_t index = 0; index < sizeof(sorters_array)/sizeof(sorters_array[0]); ++index)
     {
-        ParsedData->sorter = quickSort;
+        if (strcmp(algorithm_name, sorters_array[index].name) == 0)
+        {
+            ParsedData->sorter = sorters_array[index].sorter;
+        }
     }
-    else if (strcmp(algorithm_name, "heap") == 0)
-    {
-        ParsedData->sorter = heapSort;
-    }
-    else
+    if (ParsedData->sorter == nullptr)
     {
         return ALGORITHM_ERR;
     }
@@ -56,30 +61,23 @@ Status setInputStream(const int argc, const char** argv, int* arg_index, FlagPar
     myAssert(arg_index != nullptr);
     myAssert(ParsedData != nullptr);
 
-    Status status = OK;
-
-    FILE** stream_in = &ParsedData->input_stream.stream;
-    char** file_path = &ParsedData->input_stream.file_path;
-
-    if (*stream_in != nullptr)
+    if (ParsedData->input_stream != nullptr)
     {
         return STREAM_ERR;
     }
 
+    const char* file_path;
     if (*arg_index + 1 < argc)
     {
         (*arg_index)++;
-        const char* file_name = argv[*arg_index];
-
-        createFilePath(file_path, FILE_INPUT_PATH, file_name);
-        returnIfError(status);
+        file_path = argv[*arg_index];
     }
     else
     {
         return FILE_ERR;
     }
-    *stream_in = fopen(*file_path, "r");
-    if (*stream_in == nullptr)
+    ParsedData->input_stream = fopen(file_path, "r");
+    if (ParsedData->input_stream == nullptr)
     {
         return FILE_ERR;
     }
@@ -91,30 +89,23 @@ Status setOutputStream(const int argc, const char** argv, int* arg_index, FlagPa
     myAssert(arg_index != nullptr);
     myAssert(ParsedData  != nullptr);
 
-    Status status = OK;
-
-    FILE** stream_out = &ParsedData->output_stream.stream;
-    char** file_path  = &ParsedData->output_stream.file_path;
-
-    if (*stream_out != nullptr)
+    if (ParsedData->output_stream != nullptr)
     {
         return STREAM_ERR;
     }
 
+    const char* file_path;
     if (*arg_index + 1 < argc)
     {
         (*arg_index)++;
-        const char* file_name = argv[*arg_index];
-
-        status = createFilePath(file_path, FILE_OUTPUT_PATH, file_name);
-        returnIfError(status);
+        file_path = argv[*arg_index];
     }
     else
     {
         return FILE_ERR;
     }
-    *stream_out = fopen(*file_path, "w");
-    if (*stream_out == nullptr)
+    ParsedData->output_stream = fopen(file_path, "w");
+    if (ParsedData->output_stream == nullptr)
     {
         return FILE_ERR;
     }
@@ -123,36 +114,27 @@ Status setOutputStream(const int argc, const char** argv, int* arg_index, FlagPa
 
 Status setAppendStream(const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData)
 {
-    myAssert(arg_index != nullptr);
-    myAssert(ParsedData  != nullptr);
+    myAssert(arg_index  != nullptr);
+    myAssert(ParsedData != nullptr);
 
-    Status status = OK;
-
-    FILE** stream_in =  &ParsedData->input_stream.stream;
-    FILE** stream_out = &ParsedData->output_stream.stream;
-
-    char** file_path   = &ParsedData->input_stream.file_path;
-
-    if (*stream_out != nullptr || *stream_in != nullptr)
+    if (ParsedData->input_stream != nullptr || ParsedData->output_stream != nullptr)
     {
         return STREAM_ERR;
     }
 
+    const char* file_path;
     if (*arg_index + 1 < argc)
     {
         (*arg_index)++;
-        const char* file_name = argv[*arg_index];
-
-        status = createFilePath(file_path, FILE_INPUT_PATH, file_name);
-        returnIfError(status);
+        file_path = argv[*arg_index];
     }
     else
     {
         return FILE_ERR;
     }
-    *stream_in  = fopen(*file_path, "a+");
-    *stream_out = fopen(*file_path, "a+");
-    if (*stream_out == nullptr || *stream_in == nullptr)
+    ParsedData->output_stream = fopen(file_path, "a+");
+    ParsedData->input_stream  = fopen(file_path, "a+");
+    if (ParsedData->input_stream == nullptr || ParsedData->output_stream == nullptr)
     {
         return FILE_ERR;
     }
@@ -166,27 +148,14 @@ Status setDefaultStreams(const int argc, const char** argv, int* arg_index, Flag
     unused(arg_index);
     myAssert(ParsedData  != nullptr);
 
-    Status status = OK;
-
-    FILE** stream_in  = &ParsedData->input_stream.stream;
-    FILE** stream_out = &ParsedData->output_stream.stream;
-
-    char** file_in_path   = &ParsedData->input_stream.file_path;
-    char** file_out_path  = &ParsedData->output_stream.file_path;
-
-    if (*stream_in != nullptr || *stream_out != nullptr)
+    if (ParsedData->output_stream != nullptr || ParsedData->input_stream != nullptr)
     {
         return STREAM_ERR;
     }
 
-    status = createFilePath(file_in_path,  FILE_INPUT_PATH,  DEFAULT_INPUT_FILE_NAME);
-    returnIfError(status);
-    status = createFilePath(file_out_path, FILE_OUTPUT_PATH, DEFAULT_OUTPUT_FILE_NAME);
-    returnIfError(status);
-
-    *stream_in  = fopen(*file_in_path, "r");
-    *stream_out = fopen(*file_out_path, "w");
-    if (*stream_in == nullptr || *stream_out == nullptr)
+    ParsedData->input_stream  = fopen(DEFAULT_INPUT_FILE_NAME,  "r");
+    ParsedData->output_stream = fopen(DEFAULT_OUTPUT_FILE_NAME, "w");
+    if (ParsedData->input_stream == nullptr || ParsedData->output_stream == nullptr)
     {
         return FILE_ERR;
     }
@@ -209,35 +178,4 @@ Status printCommands(const int argc, const char** argv, int* arg_index, FlagPars
         colorPrintf(MAGENTA, "%s\n", commands_array[i].description);
     }
     return HELP_FLAG;
-}
-
-Status createFilePath(char** file_path, const char* path, const char* file_name)
-{
-    myAssert(file_path != nullptr);
-    myAssert(file_name != nullptr);
-    myAssert(path != nullptr);
-
-    long path_length = snprintf(NULL, 0, "%s%s", path, file_name) + 1;
-    if (path_length <= 0 || (size_t)path_length >= MAX_NAME_LEN * 2)
-    {
-        return NAME_LEN_ERR;
-    }
-
-    *file_path = (char*)calloc(MAX_NAME_LEN * 2, sizeof(char));
-    if (*file_path == nullptr)
-    {
-        return ALLOC_ERR;
-    }
-    long res = snprintf(*file_path, (size_t)path_length, "%s%s", path, file_name) + 1;
-    if (res != path_length)
-    {
-        return NAME_LEN_ERR;
-    }
-    return OK;
-}
-
-void freeAndCloseStream(MyStream* stream)
-{
-    free(stream->file_path);
-    fclose(stream->stream);
 }

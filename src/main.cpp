@@ -27,14 +27,10 @@ int main(const int argc, const char** argv)
     checkStatus(status);
     debugPrintString("#2 File reading finished \n");
 
-    colorPrintf(YELLOW, "Data array size is %zu symbols \n", File_text.length);
-
     MyArray String_array = {};
     status = linkStringPointers(&File_text, &String_array);
     checkStatus(status);
     debugPrintString("#3 Pointers linked successfully \n");
-
-    colorPrintf(YELLOW, "String array size is %zu lines \n", String_array.size);
 
     status = sortArray(ParsedData.sorter, &String_array, lexicographicStringComparator);
     checkStatus(status);
@@ -57,5 +53,4 @@ int main(const int argc, const char** argv)
     fclose(ParsedData.input_stream);
     fclose(ParsedData.output_stream);
     debugPrintString("#8 Memory cleared, files closed, all done \n");
-
 }

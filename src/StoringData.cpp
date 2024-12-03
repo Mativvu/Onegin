@@ -54,13 +54,7 @@ Status linkStringPointers(MyString* File_text, MyArray* string_array)
 
     myStringReplace(File_text, '\n', '\0');
 
-    for (size_t index = 0; index < File_text->length; ++index)
-    {
-        if (File_text->string[index] == '\0')
-        {
-            string_array->size++;
-        }
-    }
+    myStringCount(File_text, '\0', &string_array->size);
 
     string_array->data = (MyString*)calloc(string_array->size, sizeof(MyString));
     if (string_array->data == nullptr)
@@ -115,6 +109,22 @@ void myStringReplace(MyString* string, char old_symbol, char new_symbol)
         if (string->string[index] == old_symbol)
         {
             string->string[index] = new_symbol;
+        }
+    }
+    return;
+}
+
+void myStringCount(MyString* string, char symbol, size_t* count)
+{
+    myAssert(string         != nullptr);
+    myAssert(string->string != nullptr);
+    myAssert(count          != nullptr);
+
+    for (size_t index = 0; index < string->length; ++index)
+    {
+        if (string->string[index] == symbol)
+        {
+            (*count)++;
         }
     }
     return;

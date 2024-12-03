@@ -23,7 +23,8 @@ Status getFileSize     (FILE* stream_in, size_t*    file_size);
 Status linkStringPointers(MyString* File_text, MyArray* String_array);
 Status printStringArray(FILE* stream_out, const MyArray* array);
 
-void myStringReplace(MyString* string, char old_symbol, char new_symbol);
+void myStringReplace(MyString* string, char old_symbol, char    new_symbol);
+void myStringCount  (MyString* string, char symbol,     size_t* count);
 
 void freeMyArray(MyArray* array);
 void freeMyString (MyString*  array);

@@ -24,7 +24,7 @@ Command commands_array[] =
 };
 size_t commands_array_size = sizeof(commands_array)/sizeof(commands_array[0]);
 
-Sorter sorters_array[] =
+static Sorter sorters_array[] =
 {
     {quickSort, "quick"},
     {heapSort,  "heap"}
@@ -143,9 +143,8 @@ Status setAppendStream(const int argc, const char** argv, int* arg_index, FlagPa
 
 Status setDefaultStreams(const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData)
 {
-    unused(argc);
-    unused(argv);
-    unused(arg_index);
+    unused(argc); unused(argv); unused(arg_index);
+    
     myAssert(ParsedData  != nullptr);
 
     if (ParsedData->output_stream != nullptr || ParsedData->input_stream != nullptr)
@@ -164,10 +163,7 @@ Status setDefaultStreams(const int argc, const char** argv, int* arg_index, Flag
 
 Status printCommands(const int argc, const char** argv, int* arg_index, FlagParseData* ParsedData)
 {
-    unused(argc);
-    unused(argv);
-    unused(arg_index);
-    unused(ParsedData);
+    unused(argc); unused(argv); unused(arg_index); unused(ParsedData);
 
     printf("\n");
     for (size_t i = 0; i < commands_array_size; i++)
